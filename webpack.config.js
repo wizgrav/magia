@@ -26,7 +26,7 @@ module.exports = {
         
     ],
     output: {
-        path: __dirname + '/build',
+        path: __dirname + '/docs',
         filename: '[name].js'
     },
     performance: {
