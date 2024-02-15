@@ -12,6 +12,7 @@ import { VRButton } from './vr.js';
 
 let Assets;
 
+const player = document.querySelector("audio");
 
 const renderer = new WebGLRenderer({ 
     preserveDrawingBuffer: App.screenshot,
@@ -90,8 +91,12 @@ Loader(renderer, assets, progressFn).then((a) => {
     
     document.querySelector("#loader").addEventListener("click", () => {
     
-        document.querySelector("audio").play();
+        player.play();
     
+        window.addEventListener("focus", () => { if (player.paused) player.play(); });
+
+        window.addEventListener("blur", () => { if (!player.paused) player.pause(); });
+
         document.body.classList.remove("loading");
     
         document.body.appendChild( VRButton.createButton( renderer ) );

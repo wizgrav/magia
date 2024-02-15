@@ -109,6 +109,8 @@ class Animal extends iMesh {
 
         tempCam.z += 250;
 
+        const dpt = App.renderer.xr.isPresenting ? 0.5 : 0;
+
         this.objects.forEach((o) => {
             
             o.position.set(0, 0, 1).multiplyScalar(dt * this.speed);
@@ -144,9 +146,9 @@ class Animal extends iMesh {
 
             po = Math.pow(po, 4);
 
-            if (this.isBird ) o.position.y +=  0.66 * po;
+            if (this.isBird ) o.position.y +=  0.5 * po;
 
-            o.position.z -= (this.isBear ? 0.2 : 1) * this.zlen * po;
+            o.position.z -= (this.isBear ? 0.15 : 1) * this.zlen * po;
 
             if(o.position.z > 500) o.position.z %= 500;
 
@@ -159,7 +161,7 @@ class Animal extends iMesh {
             } else {
 
                 const dp = tempVec3.copy(o.position).sub(tempCam).normalize().dot(App.cameraDirection);
-                if(dp > 0) this.sorted.push(o);
+                if(dp > dpt) this.sorted.push(o);
 
             }
            

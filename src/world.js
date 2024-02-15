@@ -46,6 +46,7 @@ export class World extends Scene {
             rodMaterial.color.multiplyScalar(3);
             rodMaterial.normalScale.set(3,3);
             App.assets.rod.scale.set(1, 1, 1);
+            App.assets.rod.frustumCulled = true;
             this.add(App.assets.rod);
 
             const center = new Vector3( 0,0,0 );
@@ -73,7 +74,7 @@ export class World extends Scene {
                     `);
                 }
                 mesh.children[0].rotation.z = - Math.PI / 2;
-                mesh.children[0].frustuCulled = true;
+                mesh.children[0].frustumCulled = true;
                 mesh.scale.set(1,1,1).multiplyScalar(0.3);
                 mesh.lookAt(center);
                 this.add(mesh);
@@ -82,7 +83,6 @@ export class World extends Scene {
                 this.bump.dummy.position.y = -0.01;
                 this.bump.instance(this.bump.dummy);
 
-                console.log(mesh.position.x);
             }
 
             for( let i = 0; i < 3; i ++ ) {
@@ -153,8 +153,8 @@ export class World extends Scene {
     }
 
     update() {
-        //App.camera.position.set(0, 0, 0);
-        //App.camera.lookAt(this.sunLight.position);
+
         this.animals.forEach((a) => a.update())
+        
     }
 }
