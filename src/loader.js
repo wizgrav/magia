@@ -4,14 +4,13 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import {KTX2Loader} from 'three/examples/jsm/loaders/KTX2Loader';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
-import {mods} from './assets';
 
 let renderer = null;
 let ktxLoader = new KTX2Loader();
 export default function Loader( r, files, progressCb) {
     if(!renderer) {
         renderer = r;
-        ktxLoader.setTranscoderPath( '/assets/basis/' ).detectSupport( renderer );
+        ktxLoader.setTranscoderPath( 'assets/basis/' ).detectSupport( renderer );
     }
 
     var handlers = {
@@ -93,7 +92,7 @@ export default function Loader( r, files, progressCb) {
             if (ext === "ktx2") {
                 yp.push([k, url]);
             } else {
-                wp.push(handle(handlers[ext], "/assets/" + url, k));
+                wp.push(handle(handlers[ext], "assets/" + url, k));
             }
         } else {
             console.warn( 'LOAD EXTENSION UNHANDLED: ' + url );
@@ -102,7 +101,7 @@ export default function Loader( r, files, progressCb) {
 
     async function handleBasis(arr) {
         for(let i=0; i< arr.length; i++) {
-            assets[arr[i][0]] = await ktxLoader.loadAsync("/assets/" + arr[i][1]);
+            assets[arr[i][0]] = await ktxLoader.loadAsync("assets/" + arr[i][1]);
         }
     }
 
