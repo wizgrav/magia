@@ -1,0 +1,19 @@
+{
+    "scripts": {
+        "build": "webpack --mode=production ",
+        "dist": "webpack --mode=development ",
+        "serve": "webpack serve --https --mode=production --devtool=eval-source-map --static-directory=. ./src/index.js"
+    },
+    "dependencies": {
+        "three": "git+https://github.com/mrdoob/three.js.git#dev"
+    },
+    "browser": "./src/index.js",
+    "devDependencies": {
+        "copy-webpack-plugin": "^11.0.0",
+        "http-serve": "^1.0.1",
+        "webpack": "^5.56.0",
+        "webpack-cli": "^4.9.1",
+        "webpack-dev-server": "^4.7.1",
+        "webpack-obfuscator": "^3.5.1"
+    }
+}

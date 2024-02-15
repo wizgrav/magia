@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bela Magia by Wizgrav</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <meta
+      name="description"
+      content="Inspiration was drawn from an old slavic story I made up on my own"
+    />
+
+    <meta name="author" content="Yannis Lytis Gravezas" />
+    <meta name="keywords" content="WebGL, WebXR, Morph, Runa, Ochelie, Soroki, Slavic, White, Magic" />
+    <meta property="og:url" content="https://wizgrav.github.io/magia" />
+    <meta property="og:title" content="Bela Magia by Wizgrav" />
+    <meta
+      property="og:description"
+      content="Inspiration was drawn from an old slavic story I made up on my own"
+    />
+    <meta property="og:image" content="https://wizgrav.github.io/magia/promo.jpg" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.ico">
+ 
+    <style>
+      html {
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      #loader {
+        position:absolute;
+        width: 100vw;
+        height: 100vh;
+        background-color: black;
+        top: 0;
+        left: 0;
+        z-index:1000;
+        transition: visibility 1s, opacity 1s;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      body.loading #loader {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      #loader-header {
+        width: 20vh;
+        height: 20vh;
+        margin: auto;
+        margin-top: 40vh;
+        font-size: 9vh;
+        display: table;
+        transition: transform 0.5s, opacity 0.4s;
+        opacity: 0;
+        transform: scale(2);
+        background: transparent url(/assets/loader.png) center center no-repeat;
+        background-size: contain;
+      }
+
+      body.loading #loader-header {
+        opacity: 0.9;
+        transform: scale(1);
+      }
+      
+      #loader-header b {
+        font-weight: 100;
+      }
+      
+      #loader-bar {
+        position: absolute;
+        right: 0;
+        background-color: black;
+        height: 100%;
+        width: 100%;
+        opacity: 0.96;
+        top: 0;
+        z-index: 100000000;
+        transition: height 0.5s;
+      }
+      
+      #loader-tap {
+        position: absolute;
+        font-weight: 400;
+        font-family: sans-serif;
+        color: lightgray;
+        bottom: 12vh;
+        font-size: 2vh;
+        width: 100%;
+        text-align: center;
+        display: none;
+      }
+
+      #loader-runa {
+        position: absolute;
+        font-weight: 400;
+        font-family: sans-serif;
+        color: lightgray;
+        top: 13vh;
+        font-size: 2vh;
+        width: 100%;
+        text-align: center;
+        display: none;
+      }
+
+      body.ready #loader-tap, body.ready #loader-runa{
+        display: block;
+      }
+      #loader-tap, #loader-bar, #loader-header {
+        pointer-events: none;
+      }
+
+      body:not(.loading) #loader-bar {
+        height: 100% !important;
+      }
+
+    </style>
+   
+   
+  </head>
+
+  <body class="loading">
+    <div id="loader">
+      <div id="loader-header">
+        <div></div>
+        <div id="loader-bar"> </div>
+      </div>
+      <div id="loader-tap"> Click anywhere to begin </div>
+      <div id="loader-runa">  Chant by Ochelie Soroki </div>
+    </div>
+    <audio src="assets/runa.mp3" loop></audio>
+    <script src="main.js"></script>
+  </body>
+</html>
