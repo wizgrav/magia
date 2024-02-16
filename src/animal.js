@@ -148,7 +148,7 @@ class Animal extends iMesh {
 
             if (this.isBird ) o.position.y +=  0.5 * po;
 
-            o.position.z -= (this.isBear ? 0.15 : 1) * this.zlen * po;
+            o.position.z -= (this.isBear ? 0.1 : 1) * this.zlen * po;
 
             if(o.position.z > 500) o.position.z %= 500;
 
