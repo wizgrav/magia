@@ -1,7 +1,5 @@
-import { PlaneGeometry, SphereGeometry, DoubleSide, Material, PlaneBufferGeometry, BackSide,ConeGeometry, Vector2, Color, ShaderChunk, Object3D } from "three";
+import { PlaneGeometry, SphereGeometry, DoubleSide, Material, PlaneBufferGeometry, BackSide,ConeGeometry, Vector2, Color, ShaderChunk, Object3D, InstancedMesh } from "three";
 import { MeshStandardMaterial } from "three";
-import { Mesh } from "three";
-import { iMesh } from "./mesh";
 import App from "./app";
 
 const g = new ConeGeometry(2,2,16,16, true);
@@ -24,7 +22,7 @@ g.needsUpdate = true;
 
 g.computeVertexNormals();
 
-export class Bump extends iMesh {
+export class Bump extends InstancedMesh {
     constructor() {
         const m = new MeshStandardMaterial({
             color: new Color(0xEEEEEE),
@@ -65,10 +63,25 @@ export class Bump extends iMesh {
             #include <lights_physical_fragment>
             `);
         };
+        
         const dummy = new Object3D();
+        
         super(g, m, 6);
+        
+        this.count = 0;
+
+        this.frustumCulled = false;
+
         this.dummy = dummy;
+        
         this.receiveShadow = true;
+        
         this.renderOrder = -1;
+    }
+
+    instance(dummy) {
+        dummy.updateMatrix();
+        this.setMatrixAt(this.count, dummy.matrix);
+        this.count++;
     }
 }

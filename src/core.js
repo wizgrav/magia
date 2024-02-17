@@ -93,9 +93,11 @@ Loader(renderer, assets, progressFn).then((a) => {
     
         player.play();
     
+        /*
         window.addEventListener("focus", () => { if (player.paused) player.play(); });
 
         window.addEventListener("blur", () => { if (!player.paused) player.pause(); });
+        */
 
         document.body.classList.remove("loading");
     

@@ -14,6 +14,7 @@ export const assets = {
     "ground/normal": "N.ktx2",
     "psky": "sky.jpg",
     "sky": "sky.ktx2",
-    "rod": "rod2.glb"
+    "rod": "rod2.glb",
+    "wasm": "animal.wasm"
 }
 

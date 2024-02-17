@@ -27,7 +27,8 @@ export default function Loader( r, files, progressCb) {
         "gltf": GLTFLoader,
         "ktx2": ktxLoader,
         "obj": OBJLoader,
-        "exr": EXRLoader
+        "exr": EXRLoader,
+        "wasm": true
         
     }
 
@@ -39,10 +40,11 @@ export default function Loader( r, files, progressCb) {
         if(cls === true) {
             total++;
             return fetch(file)
-                .then(response => response.text())
-                .then(data => {
+                .then((response) => response.arrayBuffer())
+                .then((bytes) => WebAssembly.compile(bytes))
+                .then(module => {
                     count++;
-                    assets[key] = data;
+                    assets[key] = module;
                     if(progressCb) progressCb({ count, total});
                 });
         } else if (cls === ktxLoader) {

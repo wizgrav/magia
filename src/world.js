@@ -2,7 +2,7 @@ import { Color, DirectionalLight, Scene, Vector3 } from "three";
 import App from "./app";
 import { Dome } from "./dome";
 import { Ground } from "./ground";
-import { Animal } from "./animal";
+import { Animal, Wanimal } from "./animal";
 import { genArray, shuffle } from "./util";
 import { Bump } from "./bump";
 
@@ -96,13 +96,14 @@ export class World extends Scene {
 
             // ANIMALS
             this.animals = [];
-
+            const cls = App.screenshot ? Animal : Wanimal;
             [ "bear", "elk", "wolf", "fox", "raven", "owl", "eagle" ].forEach((k, i) => {
-                const a = new Animal(k, obstacles);
+                const a = new cls(k, obstacles);
                 a.isBear = i === 0;
                 a.isBird = i > 3;
                 a.iHop = i > 1;
                 a.speed = a.isBird ? 3 : 4;
+                a.init();
                 this.animals.push(a);
                 this.add(a);
             });
@@ -155,6 +156,6 @@ export class World extends Scene {
     update() {
 
         this.animals.forEach((a) => a.update())
-        
+
     }
 }
