@@ -24,7 +24,12 @@ export class iMesh extends InstancedMesh {
         
         this.visible = true;
         
-        dummy.updateMatrix();
+        //dummy.updateMatrix();
+        
+        const te = dummy.matrix.elements;
+        te[12] = dummy.position.x;
+        te[13] = dummy.position.y;
+        te[14] = dummy.position.z;
         
         this.setMatrixAt(this.count, dummy.matrix);
         

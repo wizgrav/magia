@@ -33,6 +33,10 @@ class Animal extends iMesh {
             
         this.dummy.lookAt(0, 0 , 1);
 
+        this.dummy.scale.set(1, 1, 1).multiplyScalar(0.013);
+
+        this.dummy.updateMatrix();
+
         this.length = bb.max.z - bb.min.z;
         
         this.obstacles = obstacles || [];
@@ -113,15 +117,14 @@ class Animal extends iMesh {
 
         this.objects.forEach((o) => {
             
-            o.position.set(0, 0, 1).multiplyScalar(dt * this.speed);
-
-            o.position.add(o.origin);
-            
-            o.position.z -= 300;
+            o.position.set(
+                o.origin.x, 
+                o.origin.y, 
+                o.origin.z + dt * this.speed - 300
+            );
             
             o.animTime = (dt + o.timeOffset) % this.duration;
 
-            
             const z = o.position.z % 500;
 
             if(App.screenshot) {
@@ -161,6 +164,7 @@ class Animal extends iMesh {
             } else {
 
                 const dp = tempVec3.copy(o.position).sub(tempCam).normalize().dot(App.cameraDirection);
+
                 if(dp > dpt) this.sorted.push(o);
 
             }
@@ -175,8 +179,6 @@ class Animal extends iMesh {
             
             this.dummy.position.copy(o.position);
             
-            this.dummy.scale.set(1, 1, 1).multiplyScalar(0.013 * o.scale);
-
             this.instance(this.dummy, o.color, this.mixer, o.animTime);
 
         });
