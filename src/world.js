@@ -59,8 +59,10 @@ export class World extends Scene {
             
             shuffle(tarr);
 
-            
             // TOTEMS
+
+            this.totems = [];
+
             const tot = (i, a, inv) => {
                 
                 let mesh = App.assets["totem" + tarr[i]].clone();
@@ -81,6 +83,7 @@ export class World extends Scene {
                 o.renderOrder = 3;
                 mesh.scale.set(1,1,1).multiplyScalar(0.3);
                 mesh.lookAt(center);
+                this.totems.push(mesh);
                 this.add(mesh);
 
                 this.bump.dummy.position.copy(mesh.position);
@@ -105,7 +108,7 @@ export class World extends Scene {
                 a.isBear = i === 0;
                 a.isBird = i > 3;
                 a.iHop = i > 1;
-                a.speed = a.isBird ? 4 : 6;
+                a.speed = a.isBird ? 4.2 : 5.6;
                 a.init();
                 this.animals.push(a);
                 this.add(a);
@@ -160,7 +163,19 @@ export class World extends Scene {
 
         this.animals.forEach((a) => a.update());
 
-        this.animals[0].renderOrder = this.animals[0].minDist <= 36  ? 1 : 4;
+        let tDist = 0;
 
+        const cp = App.cameraPosition;
+
+        this.totems.forEach((o) => {
+            
+            const dx = o.position.x - cp.x;
+            const dz = o.position.z - cp.z;
+            
+            tDist = Math.max( tDist, dx * dx + dz * dz);
+        
+        });
+
+        this.animals[0].renderOrder = this.animals[0].minDist <= tDist  ? 1 : 4;
     }
 }

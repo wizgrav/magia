@@ -96,7 +96,7 @@ class Animal extends InstancedMesh {
 
     spawn(origin, color) {
         
-        const fix = this.isBear ? 1.4 : 1.2;
+        const fix = this.isBear ? 1.45 : 1.25;
 
         for(let i = 0; i < this.obstacles.length; i++) {
             
@@ -107,7 +107,7 @@ class Animal extends InstancedMesh {
             if(Math.abs(dx) < fix) {
                 
                 if(this.isBird) {
-                    origin.y += 1.3;    
+                    origin.y += 1.33;    
                 } else {
                     origin.x = dx > 0 ? ox + fix : ox - fix;
                 }
@@ -123,7 +123,7 @@ class Animal extends InstancedMesh {
 
         const dt = App.currentTime;
             
-        const dpt = App.renderer.xr.isPresenting ? 0.6 : 0.1;
+        const dpt = App.renderer.xr.isPresenting ? 0.56 : 0.12;
 
         const cp = App.cameraPosition;
 
