@@ -133,7 +133,7 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
 
         po = iHop ? 0.5 - po : po;
 
-        po = pow(po,  4.);
+        po = pow(po,  4.2);
 
         if (isBird ) o->position.y +=  0.5 * po;
 

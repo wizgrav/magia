@@ -16,7 +16,8 @@ module.exports = {
                 { from: "assets", to: "assets"},
                 "index.html",
                 "favicon.ico",
-                "promo.jpg"
+                "promo.jpg",
+                "banner.jpg"
             ],
             options: {
               concurrency: 100,
