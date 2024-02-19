@@ -7,7 +7,7 @@
         "serve": "webpack serve --https --mode=production --devtool=eval-source-map --static-directory=. ./src/index.js"
     },
     "dependencies": {
-        "three": "git+https://github.com/wizgrav/three.js.git#tight-morph-build"
+        "three": "git+https://github.com/wizgrav/three.js.git#tight-morph-example"
     },
     "browser": "./src/index.js",
     "devDependencies": {
