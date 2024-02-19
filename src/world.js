@@ -2,7 +2,7 @@ import { Color, DirectionalLight, Scene, Vector3 } from "three";
 import App from "./app";
 import { Dome } from "./dome";
 import { Ground } from "./ground";
-import { Animal, Wanimal } from "./animal";
+import { Animal } from "./animal";
 import { genArray, shuffle } from "./util";
 import { Bump } from "./bump";
 
@@ -40,13 +40,16 @@ export class World extends Scene {
 
             this.add(this.bump);
             
-            App.assets.rod.children[0].children[0].receiveShadow = true;
-            const rodMaterial = App.assets.rod.children[0].children[0].material;
+            const rodMesh = App.assets.rod.children[0].children[0];
+            rodMesh.receiveShadow = true;
+            const rodMaterial = rodMesh.material;
             rodMaterial.envMap = App.assets.envMap;
             rodMaterial.color.multiplyScalar(3);
             rodMaterial.normalScale.set(3,3);
+            rodMaterial.aoMap = null;
             App.assets.rod.scale.set(1, 1, 1);
             App.assets.rod.frustumCulled = true;
+            rodMesh.renderOrder = 6;
             this.add(App.assets.rod);
 
             const center = new Vector3( 0,0,0 );
@@ -73,8 +76,9 @@ export class World extends Scene {
                         diffuseColor.rgb = min(vec3(1.), mix(diffuseColor.rgb, vec3(6. * dot(lum, diffuseColor.rgb)), 0.66));
                     `);
                 }
-                mesh.children[0].rotation.z = - Math.PI / 2;
-                mesh.children[0].frustumCulled = true;
+                o.rotation.z = - Math.PI / 2;
+                o.frustumCulled = true;
+                o.renderOrder = 3;
                 mesh.scale.set(1,1,1).multiplyScalar(0.3);
                 mesh.lookAt(center);
                 this.add(mesh);
@@ -96,13 +100,12 @@ export class World extends Scene {
 
             // ANIMALS
             this.animals = [];
-            const cls = App.screenshot ? Animal : Wanimal;
             [ "bear", "elk", "wolf", "fox", "raven", "owl", "eagle" ].forEach((k, i) => {
-                const a = new cls(k, obstacles);
+                const a = new Animal(k, obstacles);
                 a.isBear = i === 0;
                 a.isBird = i > 3;
                 a.iHop = i > 1;
-                a.speed = a.isBird ? 3 : 4;
+                a.speed = a.isBird ? 4 : 6;
                 a.init();
                 this.animals.push(a);
                 this.add(a);
@@ -155,7 +158,9 @@ export class World extends Scene {
 
     update() {
 
-        this.animals.forEach((a) => a.update())
+        this.animals.forEach((a) => a.update());
+
+        this.animals[0].renderOrder = this.animals[0].minDist <= 36  ? 1 : 4;
 
     }
 }

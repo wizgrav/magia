@@ -76,7 +76,7 @@ export class Bump extends InstancedMesh {
         
         this.receiveShadow = true;
         
-        this.renderOrder = -1;
+        this.renderOrder = 2;
     }
 
     instance(dummy) {

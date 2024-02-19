@@ -121,9 +121,9 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
         Object *o = objects + i;
         o->position.x = o->origin.x;
         o->position.y = o->origin.y;
-        o->position.z = fmod(o->origin.z + dt * speed - 300., 500.); 
+        o->position.z = fmod(o->origin.z + dt * speed - 300., 500.) - 250.; 
         o->animTime = fmod((dt + o->timeOffset), duration);
-        o->scale =  fmax( 0., fmin( 1., fmin( inverseLerp(0., 10., o->position.z), 1. - inverseLerp(490., 500., o->position.z) ) ) );
+        o->scale =  fmax( 0., fmin( 1., fmin( inverseLerp(-250., -240., o->position.z), 1. - inverseLerp(240., 250., o->position.z) ) ) );
 
         if(o->scale == 0.) continue;
 
@@ -212,7 +212,7 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
         mp[mi2 + 1] = v;
     }
 
-    return sortedCount;
+    return sortedCount | ( sorted[0].value << 16 );
 }
 
 EMSCRIPTEN_KEEPALIVE void *getInstanceMatrices(void){
