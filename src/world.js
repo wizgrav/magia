@@ -47,6 +47,7 @@ export class World extends Scene {
             rodMaterial.color.multiplyScalar(3);
             rodMaterial.normalScale.set(3,3);
             rodMaterial.aoMap = null;
+            rodMaterial.normalMap = null;
             App.assets.rod.scale.set(1, 1, 1);
             App.assets.rod.frustumCulled = true;
             rodMesh.renderOrder = 6;

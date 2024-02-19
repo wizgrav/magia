@@ -27,7 +27,7 @@ class Animal extends InstancedMesh {
 
         this.frustumCulled = false;
 
-        this.zlen = (bb.max.z - bb.min.z) / 500;
+        this.zlen = (bb.max.z - bb.min.z) / 666;
 
         //this.position.z = -250;
         
