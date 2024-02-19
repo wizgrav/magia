@@ -1,4 +1,4 @@
-import { Color, DirectionalLight, Scene, Vector3 } from "three";
+import { Color, DirectionalLight, HalfFloatType, NearestFilter, RGFormat, RedFormat, Scene, Vector3, WebGLRenderTarget } from "three";
 import App from "./app";
 import { Dome } from "./dome";
 import { Ground } from "./ground";
@@ -15,7 +15,7 @@ export class World extends Scene {
             light.castShadow = true;
             light.shadow.mapSize.width = 1024; // default
             light.shadow.mapSize.height = 1024; // default
-            light.shadow.camera.near = 10; // default
+            light.shadow.camera.near = 30; // default
             light.shadow.camera.far = 150; // default
             light.shadow.camera.left = -60;
             light.shadow.camera.right = 60;

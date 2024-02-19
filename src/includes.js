@@ -1,4 +1,4 @@
-import { ShaderChunk } from "three";
+import { ShaderChunk, ShaderLib } from "three";
 
 ShaderChunk["noise"] = `//glsl
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -132,7 +132,7 @@ ShaderChunk["lights_fragment_maps"] = `//glsl
 
 #endif
 
-vec3 shadowColor = mix( vec3(0.32, 0.35, 0.38), vec3(1.), shadowFactor);
+vec3 shadowColor = mix( vec3(0.3, 0.31, 0.32), vec3(1.), shadowFactor);
 
 radiance *= shadowColor;
 
