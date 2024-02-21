@@ -132,7 +132,7 @@ ShaderChunk["lights_fragment_maps"] = `//glsl
 
 #endif
 
-vec3 shadowColor = mix( vec3(0.3, 0.31, 0.32), vec3(1.), shadowFactor);
+vec3 shadowColor = mix( vec3(0.31, 0.32, 0.33), vec3(1.), shadowFactor);
 
 radiance *= shadowColor;
 

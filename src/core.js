@@ -89,20 +89,23 @@ Loader(renderer, assets, progressFn).then((a) => {
     
     document.body.classList.add("ready");
     
+    document.body.appendChild( VRButton.createButton( renderer ) );
+    
+    const fn = () => {
+        player.currentTime = 4;
+        document.querySelector("#loader").click();
+    };
+    
+    renderer.xr.addEventListener('sessionstart', fn);
+
     document.querySelector("#loader").addEventListener("click", () => {
     
         player.play();
     
-        /*
-        window.addEventListener("focus", () => { if (player.paused) player.play(); });
-
-        window.addEventListener("blur", () => { if (!player.paused) player.pause(); });
-        */
-
         document.body.classList.remove("loading");
     
-        document.body.appendChild( VRButton.createButton( renderer ) );
-    
+        renderer.xr.removeEventListener('sessionstart', fn);
+
         App.isLoaded = true;
     
     }, {once: true})

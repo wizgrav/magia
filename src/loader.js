@@ -47,15 +47,15 @@ export default function Loader( r, files, progressCb) {
                     assets[key] = module;
                     if(progressCb) progressCb({ count, total});
                 });
-        } else if (cls === ktxLoader) {
-
-        }
+        } 
         return new Promise(async function(resolve){
             var loader =  new cls();
             total++;
             if(cls === ktxLoader) {
                 const obj = await ktxLoader.loadAsync(file);
                 assets[key] = obj;
+                count++;
+                if(progressCb) progressCb({ count, total});
                 resolve();
             } else {
                 if(cls === GLTFLoader){
@@ -102,16 +102,18 @@ export default function Loader( r, files, progressCb) {
     }
 
     async function handleBasis(arr) {
+        total += arr.length;
         for(let i=0; i< arr.length; i++) {
             assets[arr[i][0]] = await ktxLoader.loadAsync("assets/" + arr[i][1]);
+            count++;
+            if(progressCb) progressCb({ count, total});
         }
     }
 
     if(yp.length) wp.push(handleBasis(yp));
 
-    return document.fonts.ready.then(() => { 
-        return Promise.all(wp).then(function () { 
-            return assets; 
-        });
+    return Promise.all(wp).then(function () { 
+        return assets; 
     });
+    
 }
