@@ -34,14 +34,21 @@ function DownloadCanvasAsImage(){
 if( App.screenshot ) window.addEventListener("keydown", DownloadCanvasAsImage);
 
 App.renderer = renderer;
-renderer.autoClearColor = false;
-renderer.setPixelRatio( window.devicePixelRatio );
-renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.autoClear = false;
 renderer.toneMapping = ACESFilmicToneMapping;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.domElement.tabIndex = 0;
 renderer.xr.enabled = true;
+
+const fn = renderer.shadowMap.render;
+
+const isQuest = navigator.userAgent.includes("Quest");
+
+renderer.shadowMap.render = function(lights, scene, camera) {
+    fn.call(renderer.shadowMap, lights, scene, camera);
+    if ( renderer.xr.isPresenting && !isQuest ) renderer.clear(false, true, false);
+}
 
 App.pmremGenerator = new PMREMGenerator( renderer );
 App.pmremGenerator.compileEquirectangularShader();
@@ -60,6 +67,8 @@ App.camera = camera;
 const world = new World();
 
 App.world = world;
+
+var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 Loader(renderer, assets, progressFn).then((a) => {
     Assets = a;
@@ -98,8 +107,10 @@ Loader(renderer, assets, progressFn).then((a) => {
     
     renderer.xr.addEventListener('sessionstart', fn);
 
+    renderer.xr.addEventListener('sessionstart', () => { audioContext.resume(); });
+ 
     document.querySelector("#loader").addEventListener("click", () => {
-    
+        
         player.play();
     
         document.body.classList.remove("loading");
@@ -116,15 +127,19 @@ Loader(renderer, assets, progressFn).then((a) => {
 world.add(camera);
 
 function onWindowResize() {
+    const width = window.innerWidth
+    const height = window.innerHeight
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
 
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 }
 
 window.addEventListener( 'resize', onWindowResize );
 
+onWindowResize();
 
 renderer.setAnimationLoop(() => {
     
