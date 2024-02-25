@@ -117,18 +117,20 @@ export class World extends Scene {
 
             //GROUND ANIMALS
 
-            let arr = genArray(4, 160);
+            let arr = genArray(4, 8 * App.waves);
             
-            let wlen = arr.length / 20;
+            let wlen = arr.length / App.waves;
   
-            for(let i=0; i < 20; i++) {
+            const stride = 500 / App.waves;
+            
+            for(let i=0; i < App.waves; i++) {
                 for(let j=0; j < wlen; j++){
                     const index = arr[wlen * i + j];
                     const animal = this.animals[index];
                     const origin = new Vector3(
                         (6  * j + Math.random() * 4) - 96, 
                         0, 
-                        i * 25 + Math.random() * 20
+                        i * stride + Math.random() * Math.min( stride * 0.8, stride - 2 )
                     );
                     const color = index === 0 ? new Color(1, 0, 0) : new Color(index === 2 ? 0.1 + 0.1 * Math.random() : 0, 0.66 + Math.random() / 6, 0.1 + Math.random() / 3);
                     animal.spawn(origin, color);
@@ -137,18 +139,18 @@ export class World extends Scene {
 
             //BIRDS
             
-            arr = genArray(3, 160);
+            arr = genArray(3, 8 * App.waves);
             
-            wlen = arr.length / 20;
+            wlen = arr.length / App.waves;
   
-            for(let i=0; i < 20; i++) {
+            for(let i=0; i < App.waves; i++) {
                 for(let j=0; j < wlen; j++){
                     const index = arr[wlen * i + j];
                     const animal = this.animals[index + 4];
                     const origin = new Vector3(
                         (6  * j + Math.random() * 4) - 96, 
                         2.4 + 3.3 * Math.random(), 
-                        i * 25 + Math.random() * 20
+                        i * stride + Math.random() * Math.min( stride * 0.8, stride - 2 )
                     );
                     const color = new Color(0, 0.66 + Math.random() / 6, 0.1 + Math.random() / 3);
                     animal.spawn(origin, color);

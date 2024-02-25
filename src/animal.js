@@ -19,9 +19,9 @@ class Animal extends InstancedMesh {
         
         const bb = g.boundingBox;
                 
-        super(g, m, 160);
+        super(g, m, App.waves * 8);
 
-        this.memory = new WebAssembly.Memory({ initial: 1, maximum: 1 })
+        this.memory = new WebAssembly.Memory({ initial: 1, maximum: 10 })
 
         this.wasm = new WebAssembly.Instance(App.assets.wasm, { js: { mem: this.memory } });
 
@@ -84,9 +84,9 @@ class Animal extends InstancedMesh {
     
         this.wasm.exports.init(this.isBear ? 1 : 0, this.isBird ? 1 : 0, this.iHop ? 1 : 0, this.zlen, this.speed, this.duration, this.dummy.morphTargetInfluences.length)
 
-        this.instanceMatrix.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceMatrices(), 160 * 16);
+        this.instanceMatrix.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceMatrices(), App.waves * 8 * 16);
 
-        this.instanceColor.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceColors(), 160 * 3);
+        this.instanceColor.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceColors(), App.waves * 8 * 3);
 
         this.morphTexture.image.data = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getMorphs(), this.morphTexture.source.data.data.length );
 

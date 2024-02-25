@@ -5,7 +5,7 @@
 #include <emscripten/emscripten.h>
 
 
-#define SIZE 160
+#define SIZE 1024
 
 int isBear, isBird, iHop;
 
