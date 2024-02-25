@@ -9,6 +9,8 @@ import { World } from './world.js';
 import * as Includes from './includes.js';
 import { CineCamera } from './camera.js';
 import { VRButton } from './vr.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
+
 
 let Assets;
 
@@ -70,6 +72,8 @@ App.world = world;
 
 var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
+let stats;
+
 Loader(renderer, assets, progressFn).then((a) => {
     Assets = a;
     App.assets = Assets;
@@ -118,6 +122,13 @@ Loader(renderer, assets, progressFn).then((a) => {
         renderer.xr.removeEventListener('sessionstart', fn);
 
         App.isLoaded = true;
+
+        if( App.stats ) {
+            
+            stats = new Stats();
+			document.body.appendChild( stats.dom );
+        
+        }
     
     }, {once: true})
     
@@ -153,6 +164,7 @@ renderer.setAnimationLoop(() => {
     
         renderer.render(world, camera);
     
+        if( stats ) stats.update();
     }
 
 });

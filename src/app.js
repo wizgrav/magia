@@ -13,8 +13,9 @@ class APP extends EventDispatcher {
         this.clock = new Clock(true);
         this.currentTime = 0;
         this.deltaTime = 0;
-        this.screenshot = params.get("shot") == "1";
+        this.screenshot = params.get("shot") === "1";
         this.waves = !! params.get("waves") ? Math.min( 120, parseInt( params.get("waves") )): 20;
+        this.stats = params.get("stats") === "1";
     }
 
     update() {
