@@ -21,7 +21,7 @@ class Animal extends InstancedMesh {
                 
         super(g, m, App.waves * 8);
 
-        this.memory = new WebAssembly.Memory({ initial: 1, maximum: 10 })
+        this.memory = new WebAssembly.Memory({ initial: 10, maximum: 10 })
 
         this.wasm = new WebAssembly.Instance(App.assets.wasm, { js: { mem: this.memory } });
 

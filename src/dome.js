@@ -11,7 +11,7 @@ class Dome extends Mesh {
             map: App.assets.sky,
             side: BackSide,
             depthTest: true,
-            depthWrite: false
+            depthWrite: true
         });
 
         super(geometry,material);
