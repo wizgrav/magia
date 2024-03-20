@@ -136,7 +136,7 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
 
         if (isBird ) o->position.y +=  0.5 * po;
 
-        o->position.z -= (isBear ? 0.1 : 1.) * zlen * po;
+        o->position.z -= (isBear ? 0.01 : 1.) * zlen * po;
 
         float dist = distanceToSquared(cpx, cpy, cpz, o->position.x, o->position.y, o->position.z);
 
