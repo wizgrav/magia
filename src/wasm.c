@@ -11,11 +11,12 @@ int isBear, isBird, iHop;
 
 float zlen, speed, duration;
 
-typedef struct Vec3 {
+typedef struct Vec4 {
     float x;
     float y;
     float z;
-} Vec3;
+    float w;
+} Vec4;
 
 typedef struct Mat4 {
     float te[16];
@@ -23,9 +24,9 @@ typedef struct Mat4 {
 
 
 typedef struct Object {
-    Vec3 origin;
-    Vec3 color;
-    Vec3 position;
+    Vec4 origin;
+    Vec4 color;
+    Vec4 position;
     float timeOffset;
     float animTime;
     float scale;
@@ -35,13 +36,11 @@ int objectCount = 0;
 
 Object objects[SIZE];
 
-Mat4 *matrices = {0};
+Vec4 *instancePositions = {0};
+Vec4 *instanceColors = {0};
 
-Vec3 *colors;
 
 int morphCount;
-
-float *instanceMorphs;
 
 
 typedef struct Sorty {
@@ -94,9 +93,9 @@ EMSCRIPTEN_KEEPALIVE void init(int _isBear, int _isBird, int _iHop, float _zlen,
     duration = _duration;
     morphCount = _morphCount;
 
-    matrices = (Mat4 *) malloc(sizeof(Mat4) * SIZE);
-    colors = (Vec3 *) malloc(sizeof(Vec3) * SIZE);
-    instanceMorphs = (float *) malloc(sizeof(float) * (morphCount + 1) * SIZE);
+    instancePositions = (Vec4 *) malloc(sizeof(Vec4) * SIZE);
+    instanceColors = (Vec4 *) malloc(sizeof(Vec4) * SIZE);
+
 }
 
 EMSCRIPTEN_KEEPALIVE void spawn(float ox, float oy, float oz, float cx, float cy, float cz, float to){
@@ -129,7 +128,7 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
 
         float pc = o->animTime / duration;
 
-        float po = fabs(0.5 -  ( isBear ? 2. * fmod(pc, 0.5) : pc) );
+        float po = fabs(0.5 -  ( pc) );
 
         po = iHop ? 0.5 - po : po;
 
@@ -175,55 +174,30 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
 
     qsort(sorted, sortedCount, sizeof(Sorty), cmpfunc);
 
-    int stride = morphCount + 1;
-        
-    memset(instanceMorphs, 0, sortedCount * stride * sizeof(float));
-    
     for(int i=0; i < sortedCount; i++) {
         
         int index = sorted[i].index;
         
         Object *o = objects + index;
         
-        Mat4 *mat = matrices + i;
-        float sc = 0.013 * o->scale;
         
-        mat->te[0] = sc;
-        mat->te[5] = sc;
-        mat->te[10] = sc;
-        
-        mat->te[12] = o->position.x;
-        mat->te[13] = o->position.y;
-        mat->te[14] = o->position.z;
-        mat->te[15] = 1.;
+        instancePositions[i] = o->position;
 
-        colors[i] = o->color;
+        instancePositions[i].w = 0.013 * o->scale;
 
-        float *mp = instanceMorphs + stride * i;
-        
-        mp[0] = 1.;
+        instanceColors[i] = o->color;
 
-        float t = o->animTime * 10.;
-        int mi1 = (int) floor(t);
-        int mi2 = mi1 < morphCount - 1 ? mi1 + 1 : 0;
+        instanceColors[i].w = o->animTime;
 
-        float v = t - floor(t);
-        mp[mi1 + 1] = 1. - v;
-        mp[mi2 + 1] = v;
     }
 
     return sortedCount | ( sorted[0].value << 16 );
 }
 
-EMSCRIPTEN_KEEPALIVE void *getInstanceMatrices(void){
-    return (void *) matrices;
+EMSCRIPTEN_KEEPALIVE void *getInstancePositions(void){
+    return (void *) instancePositions;
 }
 
 EMSCRIPTEN_KEEPALIVE void *getInstanceColors(void){
-    return (void *) colors;
+    return (void *) instanceColors;
 }
-
-EMSCRIPTEN_KEEPALIVE void *getMorphs(void){
-    return (void *) instanceMorphs;
-}
-

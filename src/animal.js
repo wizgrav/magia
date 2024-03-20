@@ -1,11 +1,11 @@
-import { AnimationMixer, DynamicDrawUsage, InstancedMesh, Line3, MathUtils, Matrix4, MeshBasicMaterial, MeshPhongMaterial, Vector2 } from "three";
+import { AnimationMixer, DataTexture, DynamicDrawUsage, FloatType, InstancedBufferAttribute, InstancedMesh, Line3, MathUtils, Matrix4, MeshBasicMaterial, MeshDepthMaterial, MeshPhongMaterial, RGBADepthPacking, RGBAFormat, Vector2 } from "three";
 import { Vector3, Mesh, PlaneBufferGeometry, MeshStandardMaterial, DoubleSide, Color } from "three";
 import App from "./app";
 
 const tempColor = new Color();
 const tempVec3 = new Vector3();
 const tempCam = new Vector3();
-class Animal extends InstancedMesh {
+class Animal extends Mesh {
 
     constructor(k, obstacles) {
 
@@ -18,8 +18,15 @@ class Animal extends InstancedMesh {
         g.computeBoundingBox();
         
         const bb = g.boundingBox;
-                
-        super(g, m, App.waves * 8);
+        
+        g.isInstancedBufferGeometry = true;
+        
+        g.instanceCount = 0;
+
+        
+        super(g, m);
+
+        this.instanceCount =  App.waves * 8;
 
         this.memory = new WebAssembly.Memory({ initial: 10, maximum: 10 })
 
@@ -39,19 +46,11 @@ class Animal extends InstancedMesh {
         
         this.castShadow = true;
         
-        this.instanceMatrix.setUsage( DynamicDrawUsage );
-        
-        this.setMorphAt(0, this.dummy );
-        
-        this.setColorAt(0, tempColor);
-        
-        this.instanceColor.setUsage( DynamicDrawUsage );
-        
         this.renderOrder = 5;
         
         this.objects = [];
         
-        this.duration = orig.gltf.animations[0].duration;
+        this.duration =  orig.gltf.animations[0].duration;
         
         this.speed = 3;
         
@@ -60,7 +59,15 @@ class Animal extends InstancedMesh {
         this.material.dithering = true;
         
         this.material.onBeforeCompile = (s) => {
-            s.vertexShader = s.vertexShader.replace("#include <color_vertex>", `//glsl
+
+            s.vertexShader = `//glsl
+
+            #define USE_INSTANCING_MORPH
+            attribute vec4 instancePosition;
+            attribute vec4 instanceColor;
+            
+            ` + s.vertexShader.replace("#include <color_vertex>", `//glsl
+            
             {
                 vColor = color;
                 float g = dot(vColor.rgb, vec3(0.21, 0.71, 0.07));
@@ -68,6 +75,29 @@ class Animal extends InstancedMesh {
                 vColor.rgb = mix(vColor.rgb, vColor.r > 0.33 ? vec3(0.) : vec3(1.), instanceColor.r);
                 vColor.rgb *= 1. - instanceColor.b;
             }
+            `).replace("#include <morphinstance_vertex>", `//glsl
+                
+                float morphTargetInfluences[MORPHTARGETS_COUNT];
+
+                float morphTargetBaseInfluence = 1.;
+            
+                for ( int i = 0; i < MORPHTARGETS_COUNT; i ++ ) morphTargetInfluences[i] =  0.;
+                
+                {
+                    float t = instanceColor.w * 10.;
+                    int mi1 = int( t );
+                    int mi2 = mi1 < MORPHTARGETS_COUNT - 1 ? mi1 + 1 : 0;
+
+                    float v = t - floor(t);
+                    morphTargetInfluences[mi1] = 1. - v;
+                    morphTargetInfluences[mi2] = v;
+                }
+            `).replace("#include <project_vertex>", `//glsl
+                
+                transformed.xyz *= instancePosition.w;
+                transformed.xyz += instancePosition.xyz;
+
+                #include <project_vertex>
             `);
             s.fragmentShader = s.fragmentShader.replace("#include <color_fragment>", `//glsl
             {
@@ -76,6 +106,43 @@ class Animal extends InstancedMesh {
             `)    
         }
 
+        this.customDepthMaterial = new MeshDepthMaterial({ depthPacking: RGBADepthPacking });
+
+        this.customDepthMaterial.onBeforeCompile = (s) => {
+
+            s.vertexShader = `//glsl
+
+            #define USE_INSTANCING_MORPH
+            attribute vec4 instancePosition;
+            attribute vec4 instanceColor;
+            
+            
+            ` + s.vertexShader.replace("#include <morphinstance_vertex>", `//glsl
+                
+                float morphTargetInfluences[MORPHTARGETS_COUNT];
+
+                float morphTargetBaseInfluence = 1.;
+            
+                for ( int i = 0; i < MORPHTARGETS_COUNT; i ++ ) morphTargetInfluences[i] =  0.;
+                
+                {
+                    float t = instanceColor.w * 10.;
+                    int mi1 = int( t );
+                    int mi2 = mi1 < MORPHTARGETS_COUNT - 1 ? mi1 + 1 : 0;
+
+                    float v = t - floor(t);
+                    morphTargetInfluences[mi1] = 1. - v;
+                    morphTargetInfluences[mi2] = v;
+                }
+            `).replace("#include <project_vertex>", `//glsl
+                
+                transformed.xyz *= instancePosition.w;
+                transformed.xyz += instancePosition.xyz;
+
+                #include <project_vertex>
+            `);
+              
+        }
         this.material.envMap = App.assets.envMap;
 
     }
@@ -84,14 +151,18 @@ class Animal extends InstancedMesh {
     
         this.wasm.exports.init(this.isBear ? 1 : 0, this.isBird ? 1 : 0, this.iHop ? 1 : 0, this.zlen, this.speed, this.duration, this.dummy.morphTargetInfluences.length)
 
-        this.instanceMatrix.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceMatrices(), App.waves * 8 * 16);
+        this.instancePositions = new InstancedBufferAttribute( new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstancePositions(), this.instanceCount * 4), 4);
 
-        this.instanceColor.array = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceColors(), App.waves * 8 * 3);
+        this.instancePositions.setUsage(DynamicDrawUsage);
 
-        this.morphTexture.image.data = new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getMorphs(), this.morphTexture.source.data.data.length );
+        this.geometry.setAttribute("instancePosition", this.instancePositions);
 
-        this.morphTexture.needsUpdate = true;
-    
+        this.instanceColors =  new InstancedBufferAttribute( new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceColors(), this.instanceCount * 4), 4);
+
+        this.instanceColors.setUsage(DynamicDrawUsage);
+        
+        this.geometry.setAttribute("instanceColor", this.instanceColors);
+
     }
 
     spawn(origin, color) {
@@ -133,6 +204,8 @@ class Animal extends InstancedMesh {
 
         this.count = ret & 0x0000FFFF;
 
+        this.geometry.instanceCount = this.count;
+
         if ( this.count === 0) {
             
             this.visible = false;
@@ -149,19 +222,15 @@ class Animal extends InstancedMesh {
 
         }
 
-        this.instanceMatrix.addUpdateRange(0, this.count * 16);
+        this.instancePositions.addUpdateRange(0, this.count * 4);
 
-        this.instanceMatrix.needsUpdate = true;
+        this.instancePositions.needsUpdate = true;
 
-        this.instanceColor.addUpdateRange(0, this.count * 3);
+        this.instanceColors.addUpdateRange(0, this.count * 4);
         
-        this.instanceColor.needsUpdate = true;
-        
-        if(this.firstUpdate) this.morphTexture.image.height = this.count;
+        this.instanceColors.needsUpdate = true;
+      
 
-        this.firstUpdate = true;
-    
-        this.morphTexture.needsUpdate = true;
     }
 }
 
