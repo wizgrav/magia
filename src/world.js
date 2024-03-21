@@ -128,7 +128,7 @@ export class World extends Scene {
                     const index = arr[wlen * i + j];
                     const animal = this.animals[index];
                     const origin = new Vector3(
-                        (6  * j + Math.random() * 4) - 96, 
+                        (6  * j + Math.random() * 4.5) - 96, 
                         0, 
                         i * stride + Math.random() * Math.min( stride * 0.8, stride - 2 )
                     );
@@ -148,7 +148,7 @@ export class World extends Scene {
                     const index = arr[wlen * i + j];
                     const animal = this.animals[index + 4];
                     const origin = new Vector3(
-                        (6  * j + Math.random() * 4) - 96, 
+                        (6  * j + Math.random() * 4.5) - 96, 
                         2.4 + 3.3 * Math.random(), 
                         i * stride + Math.random() * Math.min( stride * 0.8, stride - 2 )
                     );

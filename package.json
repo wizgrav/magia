@@ -2,8 +2,8 @@
     "scripts": {
         "build": "webpack --mode=production ",
         "dist": "webpack --mode=development ",
-        "wasm": "emcc -O3 -flto -msimd128 --no-entry -o assets/animal.wasm src/wasm.c  -s STANDALONE_WASM -s \"EXPORTED_FUNCTIONS=['_init', '_spawn', '_update', '_getInstancePositions','_getInstanceColors']\"",
-        "wasm-dev": "emcc -g --no-entry -o assets/animal.wasm src/wasm.c  -s STANDALONE_WASM -s \"EXPORTED_FUNCTIONS=['_init', '_spawn', '_update', '_getInstancePositions','_getInstanceColors']\"",
+        "wasm": "emcc -O3 -flto -msimd128 --no-entry -o assets/animal.wasm src/wasm.cpp  -s STANDALONE_WASM -s \"EXPORTED_FUNCTIONS=['_init', '_spawn', '_update','_getDistance', '_getInstanceData']\"",
+        "wasm-dev": "emcc -g --no-entry -o assets/animal.wasm src/wasm.cpp  -s STANDALONE_WASM -s \"EXPORTED_FUNCTIONS=['_init', '_spawn', '_update','_getDistance', '_getInstanceData']\"",
         "serve": "webpack serve --https --mode=production --devtool=eval-source-map --static-directory=. ./src/index.js"
     },
     "dependencies": {

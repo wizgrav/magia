@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include  <string.h>
+#include <string.h>
+#include <algorithm>
 #include <emscripten/emscripten.h>
-
 
 #define SIZE 1024
 
-int isBear, isBird, iHop;
+int isBear, isBird, iHop, minDist;
 
 float zlen, speed, duration;
 
@@ -24,21 +24,21 @@ typedef struct Mat4 {
 
 
 typedef struct Object {
-    Vec4 origin;
-    Vec4 color;
     Vec4 position;
-    float timeOffset;
-    float animTime;
-    float scale;
+    Vec4 color;
+    Vec4 origin;
 } Object;
+
+typedef struct Instance {
+    Vec4 position;
+    Vec4 color;
+} Instance;
 
 int objectCount = 0;
 
 Object objects[SIZE];
 
-Vec4 *instancePositions = {0};
-Vec4 *instanceColors = {0};
-
+Instance *instanceData;
 
 int morphCount;
 
@@ -52,11 +52,17 @@ Sorty sorted[SIZE];
 
 //UTILS
 
+extern "C" {
+
 int cmpfunc (const void * a, const void * b) {
    
    return ( ((Sorty*) a )->value - ((Sorty*) b )->value );
 
 }
+
+struct cmpp {
+    bool operator() (const Sorty a, const Sorty b) { return a.value < b.value; }
+};
 
 float inverseLerp( float x, float y, float value ) {
 
@@ -93,8 +99,7 @@ EMSCRIPTEN_KEEPALIVE void init(int _isBear, int _isBird, int _iHop, float _zlen,
     duration = _duration;
     morphCount = _morphCount;
 
-    instancePositions = (Vec4 *) malloc(sizeof(Vec4) * SIZE);
-    instanceColors = (Vec4 *) malloc(sizeof(Vec4) * SIZE);
+    instanceData = (Instance *) malloc(sizeof(Instance) * SIZE);
 
 }
 
@@ -104,10 +109,10 @@ EMSCRIPTEN_KEEPALIVE void spawn(float ox, float oy, float oz, float cx, float cy
     ob->origin.x = ox;
     ob->origin.y = oy;
     ob->origin.z = oz;
+    ob->origin.w = to;
     ob->color.x = cx;
     ob->color.y = cy;
     ob->color.z = cz;
-    ob->timeOffset = to;
 
     objectCount++;
 }
@@ -117,16 +122,20 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
     int sortedCount = 0;
     
     for(int i=0; i < objectCount; i++) {
+        
         Object *o = objects + i;
+        
         o->position.x = o->origin.x;
         o->position.y = o->origin.y;
         o->position.z = fmod(o->origin.z + dt * speed - 300., 500.) - 250.; 
-        o->animTime = fmod((dt + o->timeOffset), duration);
-        o->scale =  fmax( 0., fmin( 1., fmin( inverseLerp(-250., -240., o->position.z), 1. - inverseLerp(240., 250., o->position.z) ) ) );
+        
+        float animTime = fmod((dt + o->origin.w), duration);
+        
+        float scale =  0.013 * fmax( 0., fmin( 1., fmin( inverseLerp(-250., -240., o->position.z), 1. - inverseLerp(240., 250., o->position.z) ) ) );
 
-        if(o->scale == 0.) continue;
+        if(scale == 0.) continue;
 
-        float pc = o->animTime / duration;
+        float pc = animTime / duration;
 
         float po = fabs(0.5 -  ( pc) );
 
@@ -143,8 +152,9 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
         if(dist < 64.) {
 
             sorted[sortedCount].index = (unsigned short) i;
-            sorted[sortedCount].value = (unsigned short) fmin(65534., dist);
-        
+            sorted[sortedCount].value = (unsigned short) fmin(65535., dist);
+            o->position.w = scale;
+            o->color.w = animTime;
             sortedCount++;
         
         } else {
@@ -165,14 +175,16 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
                  
                 sorted[sortedCount].index = (unsigned short) i;
                 sorted[sortedCount].value = (unsigned short) fmin(65534., dist);
-        
+                o->position.w = scale;
+                o->color.w = animTime;
                 sortedCount++;
             }
 
         }
     }
 
-    qsort(sorted, sortedCount, sizeof(Sorty), cmpfunc);
+    //qsort(sorted, sortedCount, sizeof(Sorty), cmpfunc);
+    std::sort(sorted, sorted + sortedCount, cmpp{});
 
     for(int i=0; i < sortedCount; i++) {
         
@@ -180,24 +192,22 @@ EMSCRIPTEN_KEEPALIVE int update(float dt, float dpt, float cpx, float cpy, float
         
         Object *o = objects + index;
         
-        
-        instancePositions[i] = o->position;
-
-        instancePositions[i].w = 0.013 * o->scale;
-
-        instanceColors[i] = o->color;
-
-        instanceColors[i].w = o->animTime;
+        instanceData[i] = *( (Instance *) o );
 
     }
 
-    return sortedCount | ( sorted[0].value << 16 );
+    minDist = sorted[0].value;
+
+    return sortedCount;
 }
 
-EMSCRIPTEN_KEEPALIVE void *getInstancePositions(void){
-    return (void *) instancePositions;
+EMSCRIPTEN_KEEPALIVE int getDistance(void){
+    return minDist;
 }
 
-EMSCRIPTEN_KEEPALIVE void *getInstanceColors(void){
-    return (void *) instanceColors;
+EMSCRIPTEN_KEEPALIVE void *getInstanceData(void){
+    return (void *) instanceData;
+}
+
+
 }

@@ -1,4 +1,4 @@
-import { AnimationMixer, DataTexture, DynamicDrawUsage, FloatType, InstancedBufferAttribute, InstancedMesh, Line3, MathUtils, Matrix4, MeshBasicMaterial, MeshDepthMaterial, MeshPhongMaterial, RGBADepthPacking, RGBAFormat, Vector2 } from "three";
+import { AnimationMixer, DataTexture, DynamicDrawUsage, FloatType, InstancedBufferAttribute, InstancedInterleavedBuffer, InstancedMesh, InterleavedBufferAttribute, Line3, MathUtils, Matrix4, MeshBasicMaterial, MeshDepthMaterial, MeshPhongMaterial, RGBADepthPacking, RGBAFormat, Vector2 } from "three";
 import { Vector3, Mesh, PlaneBufferGeometry, MeshStandardMaterial, DoubleSide, Color } from "three";
 import App from "./app";
 
@@ -151,16 +151,16 @@ class Animal extends Mesh {
     
         this.wasm.exports.init(this.isBear ? 1 : 0, this.isBird ? 1 : 0, this.iHop ? 1 : 0, this.zlen, this.speed, this.duration, this.dummy.morphTargetInfluences.length)
 
-        this.instancePositions = new InstancedBufferAttribute( new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstancePositions(), this.instanceCount * 4), 4);
+        this.instancedBuffer = new InstancedInterleavedBuffer(new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceData(), this.instanceCount * 8), 8);
 
-        this.instancePositions.setUsage(DynamicDrawUsage);
+        this.instancedBuffer.setUsage(DynamicDrawUsage);
+
+        this.instancePositions = new InterleavedBufferAttribute(  this.instancedBuffer, 4, 0 );
 
         this.geometry.setAttribute("instancePosition", this.instancePositions);
 
-        this.instanceColors =  new InstancedBufferAttribute( new Float32Array(this.wasm.exports.memory.buffer, this.wasm.exports.getInstanceColors(), this.instanceCount * 4), 4);
+        this.instanceColors =  new InterleavedBufferAttribute(  this.instancedBuffer, 4, 4 );
 
-        this.instanceColors.setUsage(DynamicDrawUsage);
-        
         this.geometry.setAttribute("instanceColor", this.instanceColors);
 
     }
@@ -202,7 +202,9 @@ class Animal extends Mesh {
 
         const ret = this.wasm.exports.update(dt, dpt, cp.x, cp.y, cp.z, cd.x, cd.y, cd.z);
 
-        this.count = ret & 0x0000FFFF;
+        this.count = ret;
+
+        this.minDist = this.wasm.exports.getDistance();
 
         this.geometry.instanceCount = this.count;
 
@@ -216,20 +218,13 @@ class Animal extends Mesh {
 
         } else {
 
-            this.minDist = (ret & 0xFFFF0000) >> 16;
-            
             this.visible = true;
 
         }
 
-        this.instancePositions.addUpdateRange(0, this.count * 4);
+        this.instancedBuffer.addUpdateRange(0, this.count * 8);
 
-        this.instancePositions.needsUpdate = true;
-
-        this.instanceColors.addUpdateRange(0, this.count * 4);
-        
-        this.instanceColors.needsUpdate = true;
-      
+        this.instancedBuffer.needsUpdate = true;
 
     }
 }
